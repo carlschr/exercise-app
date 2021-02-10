@@ -23,7 +23,19 @@ function generatePalette() {
 
 function populateChart(data) {
   let durations = data.map(({ totalDuration }) => totalDuration);
+  let exerciseDurations = [];
+  data.forEach(workout => {
+    workout.exercises.forEach(exercise => {
+      exerciseDurations.push(exercise.duration);
+    });
+  });
   let pounds = calculateTotalWeight(data);
+  let exercisePounds = [];
+  data.forEach(workout => {
+    workout.exercises.forEach(exercise => {
+      exercisePounds.push(exercise.weight || 0);
+    });
+  });
   let workouts = workoutNames(data);
   const colors = generatePalette();
 
@@ -138,16 +150,16 @@ function populateChart(data) {
       labels: workouts,
       datasets: [
         {
-          label: 'Exercises Performed',
+          label: 'Exercise Durations',
           backgroundColor: colors,
-          data: durations,
+          data: exerciseDurations,
         },
       ],
     },
     options: {
       title: {
         display: true,
-        text: 'Exercises Performed',
+        text: 'Exercise Durations',
       },
     },
   });
@@ -158,16 +170,16 @@ function populateChart(data) {
       labels: workouts,
       datasets: [
         {
-          label: 'Exercises Performed',
+          label: 'Exercise Pounds',
           backgroundColor: colors,
-          data: pounds,
+          data: exercisePounds,
         },
       ],
     },
     options: {
       title: {
         display: true,
-        text: 'Exercises Performed',
+        text: 'Exercise Pounds',
       },
     },
   });
