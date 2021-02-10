@@ -22,21 +22,22 @@ function generatePalette() {
 }
 
 function populateChart(data) {
-  let durations = data.map(({ totalDuration }) => totalDuration);
-  let exerciseDurations = [];
-  data.forEach(workout => {
-    workout.exercises.forEach(exercise => {
-      exerciseDurations.push(exercise.duration);
-    });
-  });
-  let pounds = calculateTotalWeight(data);
-  let exercisePounds = [];
-  data.forEach(workout => {
-    workout.exercises.forEach(exercise => {
-      exercisePounds.push(exercise.weight || 0);
-    });
-  });
   let workouts = workoutNames(data);
+  let durations = data.map(({ totalDuration }) => totalDuration);
+  let exerciseDurations = {}
+  let pounds = calculateTotalWeight(data);
+  let exercisePounds = {};
+  workouts.forEach(workout => {
+    exerciseDurations[workout] = 0;
+    exercisePounds[workout] = 0;
+  });
+  data.forEach(workout => {
+    workout.exercises.forEach(exercise => {
+      exerciseDurations[exercise.name] += exercise.duration;
+      exercisePounds[exercise.name] += exercise.weight || 0;
+    });
+  });
+
   const colors = generatePalette();
 
   let line = document.querySelector('#canvas').getContext('2d');
@@ -147,12 +148,12 @@ function populateChart(data) {
   let pieChart = new Chart(pie, {
     type: 'pie',
     data: {
-      labels: workouts,
+      labels: Object.keys(exerciseDurations),
       datasets: [
         {
           label: 'Exercise Durations',
           backgroundColor: colors,
-          data: exerciseDurations,
+          data: Object.values(exerciseDurations),
         },
       ],
     },
@@ -167,12 +168,12 @@ function populateChart(data) {
   let donutChart = new Chart(pie2, {
     type: 'doughnut',
     data: {
-      labels: workouts,
+      labels: Object.keys(exercisePounds),
       datasets: [
         {
           label: 'Exercise Pounds',
           backgroundColor: colors,
-          data: exercisePounds,
+          data: Object.values(exercisePounds),
         },
       ],
     },
@@ -206,9 +207,9 @@ function calculateTotalWeight(data) {
 function workoutNames(data) {
   let workouts = [];
 
-  data.forEach((workout, i) => {
+  data.forEach((workout) => {
     workout.exercises.forEach((exercise) => {
-      workouts.push(`${exercise.name} (${i})`)
+      workouts.push(exercise.name);
     });
   });
 
